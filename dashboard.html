@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Business Sales Performance Analytics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#14213D;
+    --ink-soft:#2B3A5C;
+    --paper:#FAF7F0;
+    --paper-dim:#F1ECE0;
+    --rule:#DED6C3;
+    --gold:#C08A2E;
+    --gold-soft:#E4C077;
+    --brick:#B23A2E;
+    --brick-soft:#E7B4AC;
+    --text:#1F2430;
+    --text-dim:#5B6478;
+    --display: 'Fraunces', serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'Space Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px;}
+
+  /* HEADER */
+  header.masthead{
+    background:var(--ink);
+    color:var(--paper);
+    padding:56px 0 44px;
+    border-bottom:6px solid var(--gold);
+  }
+  header.masthead .wrap{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;}
+  .brand-eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold-soft);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:44px;
+    line-height:1.05;
+    margin:0 0 10px;
+    max-width:640px;
+  }
+  .subtitle{color:#C7CEDF;font-size:16px;max-width:520px;margin:0;}
+  .period-tag{
+    font-family:var(--mono);
+    font-size:13px;
+    text-align:right;
+    color:var(--paper);
+    border:1px solid rgba(250,247,240,.25);
+    border-radius:2px;
+    padding:10px 16px;
+    line-height:1.6;
+  }
+  .period-tag b{color:var(--gold-soft);}
+
+  /* LEDGER KPI STRIP */
+  .ledger{
+    margin-top:-30px;
+    background:var(--paper);
+    border:1px solid var(--rule);
+    box-shadow:0 12px 30px rgba(20,33,61,.12);
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+  }
+  .ledger .cell{
+    padding:22px 20px;
+    border-right:1px solid var(--rule);
+    position:relative;
+  }
+  .ledger .cell:last-child{border-right:none;}
+  .ledger .label{
+    font-family:var(--mono);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  .ledger .value{
+    font-family:var(--display);
+    font-size:26px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .ledger .delta{font-family:var(--mono);font-size:12px;margin-top:6px;}
+  .delta.up{color:#2F7A4F;}
+  .delta.down{color:var(--brick);}
+
+  /* SECTIONS */
+  section{padding:64px 0 0;}
+  .section-head{display:flex;align-items:baseline;gap:16px;margin-bottom:6px;}
+  .section-num{font-family:var(--mono);color:var(--gold);font-size:14px;}
+  h2{font-family:var(--display);font-weight:600;font-size:28px;margin:0;color:var(--ink);}
+  .section-note{color:var(--text-dim);font-size:14.5px;max-width:640px;margin:10px 0 28px;line-height:1.55;}
+
+  .grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .card{
+    background:#fff;
+    border:1px solid var(--rule);
+    padding:24px;
+  }
+  .card h3{
+    font-family:var(--body);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--text-dim);
+    margin:0 0 18px;
+    font-weight:600;
+  }
+  .chart-box{position:relative;height:300px;}
+  .chart-box.tall{height:420px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{
+    text-align:left;font-family:var(--mono);font-size:11px;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--text-dim);padding:8px 10px;border-bottom:2px solid var(--ink);
+  }
+  td{padding:9px 10px;border-bottom:1px solid var(--rule);}
+  tr:hover td{background:var(--paper-dim);}
+  .num{font-family:var(--mono);text-align:right;}
+  .neg{color:var(--brick);font-weight:700;}
+  .pos{color:#2F7A4F;}
+
+  .insight-card{
+    background:var(--ink);
+    color:var(--paper);
+    padding:26px 28px;
+    margin-bottom:16px;
+    border-left:5px solid var(--gold);
+  }
+  .insight-card h4{font-family:var(--display);font-size:19px;margin:0 0 8px;font-weight:600;}
+  .insight-card p{margin:0;color:#C7CEDF;font-size:14.5px;line-height:1.6;}
+  .insight-card.warn{border-left-color:var(--brick);}
+
+  footer{
+    margin-top:70px;padding:30px 0;border-top:1px solid var(--rule);
+    font-family:var(--mono);font-size:12px;color:var(--text-dim);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+
+  @media (max-width:900px){
+    .ledger{grid-template-columns:repeat(2,1fr);}
+    .ledger .cell:nth-child(2n){border-right:none;}
+    .ledger .cell{border-bottom:1px solid var(--rule);}
+    .grid-2{grid-template-columns:1fr;}
+    .grid-3{grid-template-columns:1fr;}
+    h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div>
+      <p class="brand-eyebrow">Future Interns · Data Science &amp; Analytics Task 1</p>
+      <h1>Business Sales Performance Analytics</h1>
+      <p class="subtitle">A four-year read of revenue, profit, and where this business is quietly leaking money — built from 8,399 order lines across the Superstore sales ledger.</p>
+    </div>
+    <div class="period-tag">
+      PERIOD &nbsp;<b id="tag-period">—</b><br>
+      ORDERS &nbsp;<b id="tag-orders">—</b><br>
+      PREPARED BY &nbsp;<b>Lakshya</b>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="ledger" id="ledger"></div>
+
+  <!-- REVENUE TREND -->
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>Revenue &amp; Profit Over Time</h2></div>
+    <p class="section-note">Monthly sales across 2009–2012, with year-end spikes each December and a soft mid-year lull. Revenue has drifted down since 2009 even as profit has stayed comparatively flat — a margin story, not just a volume one.</p>
+    <div class="card">
+      <div class="chart-box tall"><canvas id="chartMonthly"></canvas></div>
+    </div>
+  </section>
+
+  <!-- CATEGORY -->
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>Category &amp; Region Performance</h2></div>
+    <p class="section-note">Furniture brings in nearly as much revenue as Technology — but converts almost none of it to profit. Ontario and the Prairie region are quietly the most efficient markets.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Revenue vs. Profit by Category</h3>
+        <div class="chart-box"><canvas id="chartCategory"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Margin % by Category</h3>
+        <div class="chart-box"><canvas id="chartCategoryMargin"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Revenue by Region</h3>
+        <div class="chart-box"><canvas id="chartRegion"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Revenue by Customer Segment</h3>
+        <div class="chart-box"><canvas id="chartSegment"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBCATEGORY -->
+  <section>
+    <div class="section-head"><span class="section-num">03</span><h2>Where the Money Actually Goes</h2></div>
+    <p class="section-note">Sorted by revenue. Tables and Bookcases sell well but bleed profit — a clear signal to renegotiate supplier cost or reprice, not to keep pushing volume.</p>
+    <div class="card">
+      <div class="chart-box tall"><canvas id="chartSubcat"></canvas></div>
+    </div>
+  </section>
+
+  <!-- TOP PRODUCTS + SEASONALITY -->
+  <section>
+    <div class="section-head"><span class="section-num">04</span><h2>Top Products &amp; Seasonality</h2></div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Top 10 Products by Revenue</h3>
+        <table id="tblProducts">
+          <thead><tr><th>Product</th><th class="num">Revenue</th><th class="num">Profit</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Seasonality — Revenue by Month (2009–2012 combined)</h3>
+        <div class="chart-box"><canvas id="chartSeason"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section>
+    <div class="section-head"><span class="section-num">05</span><h2>Insights &amp; Recommendations</h2></div>
+    <p class="section-note">What I'd tell the business if I were advising them directly.</p>
+
+    <div class="insight-card warn">
+      <h4>1. Furniture is a revenue trap, not a profit driver</h4>
+      <p>Furniture generated $5.18M in revenue — almost as much as Technology's $5.98M — but returned only 2.3% margin versus Technology's 14.8%. Tables (–$99K) and Bookcases (–$34K) are outright loss-making at the sub-category level. Recommendation: audit supplier pricing and discounting on Tables/Bookcases before promoting them further, or reposition them as loss-leaders that pull in Technology/Office Supplies add-on sales.</p>
+    </div>
+
+    <div class="insight-card">
+      <h4>2. Technology is the most efficient category — lean into it</h4>
+      <p>Technology converts revenue to profit almost 6x more efficiently than Furniture. Office Machines and Telephones & Communication are the two strongest sub-categories by both revenue and profit. Recommendation: shift marketing spend and floor/homepage placement toward Technology, and use it to anchor bundle offers.</p>
+    </div>
+
+    <div class="insight-card warn">
+      <h4>3. Revenue has declined since its 2009 peak</h4>
+      <p>Annual revenue fell from $4.21M (2009) to $3.44M (2011) before a modest recovery to $3.72M in 2012 — a net ~12% decline over four years, even though profit stayed relatively stable near $350–435K a year. Recommendation: investigate whether this is customer churn, pricing pressure, or category mix shift before assuming "more marketing" is the fix.</p>
+    </div>
+
+    <div class="insight-card">
+      <h4>4. Ontario and the Prairies punch above their weight</h4>
+      <p>Ontario delivers the best profit ($347K) despite West having higher revenue ($3.60M vs $3.06M) — Ontario and Prairie both run ~11.3% margins versus the West's 8.3%. Nunavut and Northwest Territories are too small to matter yet (combined &lt;7% of revenue). Recommendation: study what Ontario/Prairie do differently (product mix, discount discipline) and apply it to West, the highest-revenue but comparatively low-margin region.</p>
+    </div>
+
+    <div class="insight-card">
+      <h4>5. Corporate is the most valuable segment</h4>
+      <p>Corporate customers drive $5.50M in revenue and $600K in profit — more than double any other segment's profit contribution. Recommendation: build a retention/loyalty motion specifically for Corporate accounts, since losing even a few of these customers would materially hurt the bottom line.</p>
+    </div>
+
+    <div class="insight-card warn">
+      <h4>6. December is peak season — staff and stock for it</h4>
+      <p>December ($1.47M) and January ($1.44M) are the two strongest months, roughly 30% above the June low ($1.03M). Recommendation: front-load inventory and support staffing ahead of Q4, and consider a targeted January promotion to smooth the post-holiday dip.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Data: Superstore Sales Dataset (2009–2012, 8,399 order lines) · Cleaned &amp; analyzed in Python/pandas</span>
+    <span>Built by Lakshya · Future Interns Data Science &amp; Analytics Task 1</span>
+  </footer>
+</div>
+
+<script>
+const DATA = {"kpi": {"revenue": 14915600.82, "profit": 1521767.98, "orders": 5496, "aov": 2713.9, "margin": 10.2, "date_start": "2009-01-01", "date_end": "2012-12-30"}, "monthly": {"labels": ["2009-01", "2009-02", "2009-03", "2009-04", "2009-05", "2009-06", "2009-07", "2009-08", "2009-09", "2009-10", "2009-11", "2009-12", "2010-01", "2010-02", "2010-03", "2010-04", "2010-05", "2010-06", "2010-07", "2010-08", "2010-09", "2010-10", "2010-11", "2010-12", "2011-01", "2011-02", "2011-03", "2011-04", "2011-05", "2011-06", "2011-07", "2011-08", "2011-09", "2011-10", "2011-11", "2011-12", "2012-01", "2012-02", "2012-03", "2012-04", "2012-05", "2012-06", "2012-07", "2012-08", "2012-09", "2012-10", "2012-11", "2012-12"], "revenue": [516302.96, 332480.64, 411628.73, 393276.48, 230145.54, 263456.07, 380503.97, 329754.72, 325292.31, 361555.27, 248933.43, 415809.35, 336526.68, 271580.51, 217808.01, 266968.59, 283534.28, 293080.66, 229885.5, 207937.01, 418343.28, 365251.98, 290670.35, 368093.95, 251467.23, 299890.14, 296035.87, 288213.4, 262628.5, 197740.85, 287905.19, 274578.48, 276049.8, 305660.45, 367769.5, 328877.31, 340626.51, 276132.5, 348208.33, 268024.97, 384588.06, 276580.94, 242809.7, 302745.12, 318271.57, 351246.73, 256020.1, 354709.34], "profit": [62326.4, 30422.68, 22802.96, 39132.73, 18035.35, 34640.55, 41749.43, 14682.84, 46652.05, 55228.01, 16222.22, 52643.51, 48177.27, 25999.13, 1116.68, 17306.51, 42636.66, 36130.26, 15918.45, 21862.78, 50022.73, 48596.75, 23345.07, 32759.19, 17704.56, 20848.88, 43243.56, 36106.24, 25585.24, 17478.47, 36903.84, 24378.93, 33098.01, 49054.12, 39560.02, 37494.12, 43312.52, 25158.43, 37636.13, 31361.04, 29371.44, 30454.28, 26393.59, 13660.95, 34579.9, 21137.51, 27543.05, 21292.94]}, "category": {"labels": ["Technology", "Furniture", "Office Supplies"], "revenue": [5984248.18, 5178590.54, 3752762.1], "profit": [886313.52, 117433.03, 518021.43], "margin": [14.81, 2.27, 13.8]}, "subcategory": {"labels": ["Office Machines", "Tables", "Telephones and Communication", "Chairs & Chairmats", "Copiers and Fax", "Storage & Organization", "Binders and Binder Accessories", "Bookcases", "Computer Peripherals", "Appliances", "Office Furnishings", "Paper", "Envelopes", "Pens & Art Supplies", "Scissors, Rulers and Trimmers", "Labels", "Rubber Bands"], "revenue": [2168697.14, 1896008.14, 1889313.8, 1761836.55, 1130361.3, 1070182.6, 1022957.59, 822652.04, 795875.94, 736991.54, 698093.81, 446452.86, 174085.8, 167107.22, 80996.31, 38981.55, 15006.63], "profit": [307712.93, -99062.5, 316951.62, 149649.73, 167361.49, 6664.15, 307413.39, -33582.13, 94287.48, 97158.06, 100427.93, 45263.2, 48182.6, 7564.78, -7799.25, 13677.17, -102.67]}, "region": {"labels": ["West", "Ontario", "Prarie", "Atlantic", "Quebec", "Yukon", "Northwest Territories", "Nunavut"], "revenue": [3597549.28, 3063212.48, 2837304.6, 2014248.2, 1510195.08, 975867.37, 800847.33, 116376.48], "profit": [297008.61, 346868.54, 321160.12, 238960.66, 140426.65, 73849.21, 100653.08, 2841.11], "margin": [8.26, 11.32, 11.32, 11.86, 9.3, 7.57, 12.57, 2.44]}, "segment": {"labels": ["Corporate", "Home Office", "Consumer", "Small Business"], "revenue": [5498904.88, 3564763.88, 3063611.08, 2788320.99], "profit": [599746.0, 318354.03, 287959.94, 315708.01]}, "top_products": {"labels": ["Global Troy\u2122 Executive Leather Low-Back Tilter", "Polycom ViewStation\u2122 ISDN Videoconferencing Unit", "Canon PC940 Copier", "Riverside Palais Royal Lawyers Bookcase, Royale Cherry Finish", "Hewlett Packard LaserJet 3310 Copier", "Bretford CR8500 Series Meeting Room Furniture", "Sharp AL-1530CS Digital Copier", "Hewlett-Packard cp1700 [D, PS] Series Color Inkjet Printers", "GBC DocuBind 200 Manual Binding Machine", "Canon imageCLASS 2200 Advanced Copier"], "revenue": [275941.52, 255303.97, 210910.68, 206494.13, 194880.35, 147412.21, 130046.81, 128100.43, 120342.74, 114173.41], "profit": [79284.78, -17771.27, 47705.85, 14291.57, 73299.61, -1989.87, 11770.3, 55281.39, 50462.53, -31885.68]}, "seasonality": {"labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], "revenue": [1444923.38, 1180083.78, 1273680.93, 1216483.44, 1160896.38, 1030858.51, 1141104.35, 1115015.33, 1337956.96, 1383714.44, 1163393.37, 1467489.96]}};
+
+function fmtMoney(n, compact=true){
+  if(compact){
+    if(Math.abs(n) >= 1e6) return '$'+(n/1e6).toFixed(2)+'M';
+    if(Math.abs(n) >= 1e3) return '$'+(n/1e3).toFixed(1)+'K';
+  }
+  return '$'+n.toLocaleString(undefined,{maximumFractionDigits:0});
+}
+
+// KPI ledger
+const ledger = document.getElementById('ledger');
+const kpis = [
+  {label:'Total Revenue', value: fmtMoney(DATA.kpi.revenue)},
+  {label:'Total Profit', value: fmtMoney(DATA.kpi.profit)},
+  {label:'Profit Margin', value: DATA.kpi.margin + '%'},
+  {label:'Total Orders', value: DATA.kpi.orders.toLocaleString()},
+  {label:'Avg Order Value', value: fmtMoney(DATA.kpi.aov,false)}
+];
+kpis.forEach(k=>{
+  const c = document.createElement('div');
+  c.className='cell';
+  c.innerHTML = `<div class="label">${k.label}</div><div class="value">${k.value}</div>`;
+  ledger.appendChild(c);
+});
+document.getElementById('tag-period').textContent = DATA.kpi.date_start + ' → ' + DATA.kpi.date_end;
+document.getElementById('tag-orders').textContent = DATA.kpi.orders.toLocaleString();
+
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#5B6478';
+const GOLD='#C08A2E', BRICK='#B23A2E', INK='#14213D', GOLDSOFT='#E4C077', SLATE='#8592AD';
+
+// Monthly trend
+new Chart(document.getElementById('chartMonthly'), {
+  type:'line',
+  data:{
+    labels: DATA.monthly.labels,
+    datasets:[
+      {label:'Revenue', data: DATA.monthly.revenue, borderColor: INK, backgroundColor:'rgba(20,33,61,.06)', fill:true, tension:.3, pointRadius:0, borderWidth:2},
+      {label:'Profit', data: DATA.monthly.profit, borderColor: GOLD, backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:2, yAxisID:'y1'}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index', intersect:false},
+    scales:{
+      x:{ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:12}, grid:{display:false}},
+      y:{title:{display:true,text:'Revenue ($)'}, grid:{color:'#EFE9DA'}},
+      y1:{position:'right', title:{display:true,text:'Profit ($)'}, grid:{display:false}}
+    },
+    plugins:{legend:{position:'top', align:'end'}}
+  }
+});
+
+// Category revenue vs profit
+new Chart(document.getElementById('chartCategory'), {
+  type:'bar',
+  data:{
+    labels: DATA.category.labels,
+    datasets:[
+      {label:'Revenue', data: DATA.category.revenue, backgroundColor: INK},
+      {label:'Profit', data: DATA.category.profit, backgroundColor: GOLD}
+    ]
+  },
+  options:{responsive:true, maintainAspectRatio:false,
+    scales:{y:{grid:{color:'#EFE9DA'}}, x:{grid:{display:false}}},
+    plugins:{legend:{position:'top', align:'end'}}}
+});
+
+// Category margin
+new Chart(document.getElementById('chartCategoryMargin'), {
+  type:'bar',
+  data:{
+    labels: DATA.category.labels,
+    datasets:[{label:'Margin %', data: DATA.category.margin,
+      backgroundColor: DATA.category.margin.map(m=> m<5 ? BRICK : GOLD)}]
+  },
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    scales:{x:{grid:{color:'#EFE9DA'}, title:{display:true,text:'%'}}, y:{grid:{display:false}}},
+    plugins:{legend:{display:false}}}
+});
+
+// Region
+new Chart(document.getElementById('chartRegion'), {
+  type:'bar',
+  data:{labels: DATA.region.labels, datasets:[
+    {label:'Revenue', data: DATA.region.revenue, backgroundColor: SLATE},
+    {label:'Profit', data: DATA.region.profit, backgroundColor: GOLD}
+  ]},
+  options:{responsive:true, maintainAspectRatio:false,
+    scales:{y:{grid:{color:'#EFE9DA'}}, x:{grid:{display:false}, ticks:{maxRotation:35, minRotation:35}}},
+    plugins:{legend:{position:'top', align:'end'}}}
+});
+
+// Segment donut
+new Chart(document.getElementById('chartSegment'), {
+  type:'doughnut',
+  data:{labels: DATA.segment.labels, datasets:[{data: DATA.segment.revenue,
+    backgroundColor:[INK, GOLD, SLATE, GOLDSOFT], borderWidth:2, borderColor:'#fff'}]},
+  options:{responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'right'}}}
+});
+
+// Subcategory diverging profit
+new Chart(document.getElementById('chartSubcat'), {
+  type:'bar',
+  data:{
+    labels: DATA.subcategory.labels,
+    datasets:[{label:'Profit', data: DATA.subcategory.profit,
+      backgroundColor: DATA.subcategory.profit.map(p=> p<0 ? BRICK : GOLD)}]
+  },
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    scales:{x:{grid:{color:'#EFE9DA'}, title:{display:true,text:'Profit ($)'}}, y:{grid:{display:false}}},
+    plugins:{legend:{display:false}}}
+});
+
+// Seasonality
+new Chart(document.getElementById('chartSeason'), {
+  type:'bar',
+  data:{labels: DATA.seasonality.labels, datasets:[{label:'Revenue', data: DATA.seasonality.revenue, backgroundColor: INK}]},
+  options:{responsive:true, maintainAspectRatio:false,
+    scales:{y:{grid:{color:'#EFE9DA'}}, x:{grid:{display:false}}},
+    plugins:{legend:{display:false}}}
+});
+
+// Top products table
+const tbody = document.querySelector('#tblProducts tbody');
+DATA.top_products.labels.forEach((name,i)=>{
+  const rev = DATA.top_products.revenue[i];
+  const prof = DATA.top_products.profit[i];
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${name}</td><td class="num">${fmtMoney(rev,false)}</td><td class="num ${prof<0?'neg':'pos'}">${fmtMoney(prof,false)}</td>`;
+  tbody.appendChild(tr);
+});
+</script>
+
+</body>
+</html>
