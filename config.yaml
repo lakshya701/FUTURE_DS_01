@@ -1,0 +1,17 @@
+# Project Configuration
+
+data:
+  raw_file: "data/superstore_sales.csv"
+  output_file: "data/dashboard_data.json"
+
+analysis:
+  top_products_count: 10
+  date_format: "%m/%d/%Y"
+
+dashboard:
+  port: 8000
+  title: "Business Sales Analytics"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(levelname)s - %(message)s"
