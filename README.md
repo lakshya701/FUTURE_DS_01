@@ -1,5 +1,7 @@
 # Business Sales Analytics - Future Interns Task 1
 
+### 📊 [View the live dashboard](https://lakshya701.github.io/FUTURE_DS_01/dashboard.html)
+
 A simple data analysis project to understand sales patterns and business performance.
 
 ## What does this do?
@@ -78,11 +80,11 @@ python analysis.py
 
 | Metric | Value |
 |--------|-------|
-| Total Revenue | ₹1,49,15,600 |
-| Total Profit | ₹15,21,768 |
+| Total Revenue | $14,915,600 |
+| Total Profit | $1,521,768 |
 | Profit Margin | 10.2% |
 | Orders | 5,496 |
-| Avg Order Value | ₹2,713.90 |
+| Avg Order Value | $2,713.90 |
 
 ## If something doesn't work
 
@@ -95,8 +97,8 @@ python analysis.py
 ## Notes
 
 - Data is from 2009-2012 (4 years)
-- 8,399 total orders
-- Indian superstore (regions are Canadian regions in this case)
-- All numbers in rupees
+- 8,399 order lines (5,496 unique orders)
+- Canadian superstore (regions are Canadian provinces/territories)
+- All amounts in dollars
 
 Made for Future Interns Data Science Task 1
